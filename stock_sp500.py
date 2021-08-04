@@ -78,7 +78,7 @@ def price_plot(symbol):
 
 num_company = st.sidebar.slider('Number of Companies', 1, 5)
 
-if st.button('Show Plots'):
+if st.button('Show Plots'): # remove this line if you just want to show the plots (no button)
     st.header('Stock Closing Price')
     for i in list(data_selected_sector.Symbol)[:num_company]:
         price_plot(i)
