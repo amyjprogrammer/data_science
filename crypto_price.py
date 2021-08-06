@@ -32,3 +32,13 @@ expander_bar.markdown("""
 * **Data source:** [CoinMarketCap](http://coinmarket.com)
 * **Credit:** Web scraper adapted from the Medium article *[Web Scraping Crypto Prices With Python](https://towardsdatascience.com/web-scraping-crypto-prices-with-python-41072ea5b5bf)* written by [Bryan Feng](https://medium.com/@bryanf).                   
 """)
+
+#Having three Columns
+col1 = st.sidebar
+col2, col3 = st.beta_columns((2,1))
+
+#Column 1- sidebar
+col1.header('Input Options')
+
+#sidebar- currency price unit
+currency_price = col1.selectbox('Select currency for price', 'USD', 'BTC', 'ETH')
