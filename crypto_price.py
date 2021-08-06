@@ -22,9 +22,6 @@ st.markdown("""
 This app retrieves cryptocurrency prices for the top 100 cryptocurrency from the **CoinMarketCap!**            
 """)
 
-#sidebar
-st.sidebar.header('Input Options')
-
 #About section
 expander_bar = st.beta_expander('About')
 expander_bar.markdown("""
@@ -35,10 +32,55 @@ expander_bar.markdown("""
 
 #Having three Columns
 col1 = st.sidebar
-col2, col3 = st.beta_columns((2,1))
+col2, col3 = st.beta_columns((2,1)) #2nd column is two times larger than the 3rd
 
 #Column 1- sidebar
 col1.header('Input Options')
 
 #sidebar- currency price unit
-currency_price = col1.selectbox('Select currency for price', 'USD', 'BTC', 'ETH')
+currency_price_unit = col1.selectbox('Select currency for price', ('USD', 'BTC', 'ETH'))
+
+#Scraping CoinMarketCap
+@st.cache 
+def load_data():
+    cmc = requests.get('https://coinmarketcap.com')
+    soup = BeautifulSoup(cmc.content, 'html.parser')
+    
+    data = soup.find('script', id='__NEXT_DATA__', type= 'application/json')
+    coins = {}
+    coin_data = json.loads(data.contents[0])
+    listings = coin_data['props']['initialState']['cryptocurrency']['listingLatest']['data']
+    for i in listings:
+        coins[str(i['id'])] = i['slug']
+        
+    coin_name = []
+    coin_symbol = []
+    market_cap = []
+    percent_change_1h = []
+    percent_change_24h = []
+    percent_change_7d = []
+    price = []
+    volume_24h = [] 
+    
+    for i in listings: 
+        coin_name.append(i['slug'])
+        coin_symbol.append(i['symbol'])
+        price.append(i['quote'][currency_price_unit]['price'])
+        
+        percent_change_24h.append(i['quote'][currency_price_unit]['percent_change_24h'])
+        percent_change_7d.append(i['quote'][currency_price_unit]['percent_change_7d'])
+        market_cap.append(i['quote'][currency_price_unit]['market_cap'])
+        volume_24h.append(i['quote'][currency_price_unit]['volume_24h'])
+        
+    df = pd.DataFrame(columns=['coin_name', 'coin_symbol', 'market_cap', 'percent_change_1h', 'percent_change_24h', 'percent_change_7d', 'price', 'volume_24h'])
+    df['coin_name'] = coin_name
+    df['coin_symbol'] = coin_symbol
+    df['price'] = price
+  
+    df['percent_change_24h'] = percent_change_24h
+    df['percent_change_7d'] = percent_change_7d
+    df['market_cap'] = market_cap
+    df['volume_24h'] = volume_24h
+    return df
+
+df = load_data()
